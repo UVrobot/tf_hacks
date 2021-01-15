@@ -17,7 +17,7 @@ def tfcb(msg):
 def tfscb(msg):
     for i in range(len(msg.transforms)):
         msg.transforms[i].header.stamp = rospy.Time.now()
-    tf_pub.publish(msg)
+    tfs_pub.publish(msg)
 
 def init():
     global tf_pub, tfs_pub
