@@ -10,15 +10,28 @@ from tf2_msgs.msg import TFMessage
 tf_pub = None
 tfs_pub = None
 
+ts = TFMessage()
+
 def tfcb(msg):
     for i in range(len(msg.transforms)):
         msg.transforms[i].header.stamp = rospy.Time.now()
     tf_pub.publish(msg)
 
 def tfscb(msg):
+    global ts
     for i in range(len(msg.transforms)):
         msg.transforms[i].header.stamp = rospy.Time.now()
-    tfs_pub.publish(msg)
+    ts.transforms.extend(msg.transforms)
+    rm = []
+    for i in range(len(ts.transforms)):
+        for j in range(i-1,0,-1):
+            if ts.transforms[i].header.frame_id == ts.transforms[j].header.frame_id and ts.transforms[i].child_frame_id == ts.transforms[j].child_frame_id:
+                rm.append(j)
+                break
+    ts.transforms = [ts.transforms[i] for i in range(len(ts.transforms)) if i not in rm]
+
+    print("Updating static tfs")
+    tfs_pub.publish(ts)
 
 def init():
     global tf_pub, tfs_pub
