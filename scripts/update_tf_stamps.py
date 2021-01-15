@@ -19,8 +19,6 @@ def tfcb(msg):
 
 def tfscb(msg):
     global ts
-    for i in range(len(msg.transforms)):
-        msg.transforms[i].header.stamp = rospy.Time.now()
     ts.transforms.extend(msg.transforms)
     rm = []
     for i in range(len(ts.transforms)):
@@ -28,6 +26,8 @@ def tfscb(msg):
             if ts.transforms[i].header.frame_id == ts.transforms[j].header.frame_id and ts.transforms[i].child_frame_id == ts.transforms[j].child_frame_id:
                 rm.append(j)
                 break
+    for i in range(len(ts.transforms)):
+        ts.transforms[i].header.stamp = rospy.Time.now()
     ts.transforms = [ts.transforms[i] for i in range(len(ts.transforms)) if i not in rm]
 
     print("Updating static tfs")
